@@ -5,8 +5,9 @@ import (
 	"os"
 	"strconv"
 
+	"toolkitz/backend/internal/core/ports"
+
 	"github.com/gofiber/fiber/v2"
-	"toolkit/backend/internal/core/ports"
 )
 
 type ImageHandler struct {

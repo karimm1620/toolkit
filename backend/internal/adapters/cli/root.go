@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"toolkitz/backend/internal/core/ports"
+	"toolkitz/backend/internal/core/services"
+
 	"github.com/spf13/cobra"
-	"toolkit/backend/internal/core/ports"
-	"toolkit/backend/internal/core/services"
 )
 
 var (
@@ -15,23 +16,47 @@ var (
 	format string
 )
 
+const banner = "\033[36m" + `
+████████╗  ██████╗   ██████╗  ██╗      ██╗  ██╗ ██╗ ████████╗ ███████╗
+╚══██╔══╝ ██╔═══██╗ ██╔═══██╗ ██║      ██║ ██╔╝ ██║ ╚══██╔══╝ ╚════██║
+   ██║    ██║   ██║ ██║   ██║ ██║      █████╔╝  ██║    ██║      ███╔═╝
+   ██║    ██║   ██║ ██║   ██║ ██║      ██╔═██╗  ██║    ██║    ██╔══╝  
+   ██║    ╚██████╔╝ ╚██████╔╝ ███████╗ ██║  ██╗ ██║    ██║    ███████╗
+   ╚═╝     ╚═════╝   ╚═════╝  ╚══════╝ ╚═╝  ╚═╝ ╚═╝    ╚═╝    ╚══════╝` + "\033[0m"
+
 func Execute() {
 	var rootCmd = &cobra.Command{
 		Use:   "pdf-tool",
 		Short: "Toolkit lintas platform untuk pemrosesan dokumen dan gambar",
+		// 'Long' to see ./pdf-tool --help
+		Long: fmt.Sprintf("%s\n\nToolkitz CLI memungkinkan Anda memproses PDF dan Gambar langsung dari terminal.\n", banner),
+		
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(banner)
+			fmt.Println("\033[90mCross-Platform Document & Image Processing CLI\033[0m\n")
+			
+			fmt.Println("Available Commands (Top 5):")
+			fmt.Println("  merge       Gabungkan beberapa PDF menjadi satu")
+			fmt.Println("  split       Pisahkan PDF menjadi halaman-halaman tunggal")
+			fmt.Println("  compress    Kompresi dan optimalkan ukuran PDF")
+			fmt.Println("  word2pdf    Konversi dokumen Word (.docx) ke PDF")
+			fmt.Println("  resize      Ubah ukuran, crop, dan format gambar")
+			
+			fmt.Println("\n\033[33mKetik 'pdf-tool --help' untuk melihat seluruh command yang tersedia.\033[0m")
+		},
 	}
 
-	// 1. Registrasi Command PDF (dari file pdf_cmd.go)
+	// 1. Registrasi Command PDF
 	AddPDFCommands(rootCmd)
 
-	// 2. Registrasi Command Konversi (dari file convert_cmd.go)
+	// 2. Registrasi Command Konversi
 	AddConvertCommands(rootCmd)
 
-	// 3. Command Gambar (Langsung di root.go atau bisa dipindah ke image_cmd.go nantinya)
+	// 3. Command Gambar (Resize)
 	imgSvc := services.NewImageService()
 	var resizeCmd = &cobra.Command{
 		Use:   "resize [input] [output]",
-		Short: "Ubah ukuran gambar",
+		Short: "Ubah ukuran dan format gambar",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inputPath := args[0]
@@ -49,12 +74,17 @@ func Execute() {
 			}
 			defer out.Close()
 
-			opts := ports.ImageOptions{Width: width, Height: height, Format: format}
+			opts := ports.ImageOptions{
+				Width: width, Height: height, Format: format,
+				Quality: 85,
+			}
+			
+			fmt.Println("⏳ Memproses gambar...")
 			if err := imgSvc.ProcessImage(in, out, opts); err != nil {
 				return err
 			}
 
-			fmt.Println("Gambar berhasil diproses:", outputPath)
+			fmt.Printf("Gambar berhasil diproses: %s\n", outputPath)
 			return nil
 		},
 	}
@@ -65,7 +95,7 @@ func Execute() {
 	
 	rootCmd.AddCommand(resizeCmd)
 
-	// Eksekusi CLI
+	// CLI
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

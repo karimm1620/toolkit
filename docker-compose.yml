@@ -1,21 +1,22 @@
 version: '3.8'
+
 services:
   backend:
-    build:
+    build: 
       context: ./backend
-      dockerfile: Dockerfile
+    container_name: toolkitz-backend
     ports:
       - "3000:3000"
+    restart: unless-stopped
     environment:
       - PORT=3000
-    volumes:
-      - /tmp/toolkit:/tmp # Shared tmp space for file processing
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+    container_name: toolkitz-frontend
     ports:
-      - "80:80"
+      - "80:80" # Akses web via http://localhost
+    restart: unless-stopped
     depends_on:
       - backend

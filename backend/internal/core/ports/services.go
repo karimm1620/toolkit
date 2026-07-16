@@ -12,8 +12,7 @@ type ImageOptions struct {
 	Rotate     float64
 	FlipH      bool
 	FlipV      bool
-	// Tambahan baru:
-	Quality    int // Nilai 1-100 (Default 85)
+	Quality    int
 }
 
 type ImageService interface {

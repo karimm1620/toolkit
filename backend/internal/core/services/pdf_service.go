@@ -1,9 +1,10 @@
 package services
 
 import (
+	"toolkitz/backend/internal/core/ports"
+
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"toolkit/backend/internal/core/ports"
 )
 
 type pdfService struct{}
@@ -15,7 +16,6 @@ func NewPDFService() ports.PDFService {
 func (s *pdfService) Merge(inputPaths []string, outputPath string) error {
 	conf := model.NewDefaultConfiguration()
 	
-	// Tambahkan parameter boolean 'false' untuk dividerPage
 	return api.MergeCreateFile(inputPaths, outputPath, false, conf)
 }
 
@@ -30,11 +30,10 @@ func (s *pdfService) Split(inputPath, outputDir string, span int) error {
 
 func (s *pdfService) Encrypt(inputPath, outputPath, password string) error {
 	conf := model.NewDefaultConfiguration()
-	// Set user password dan owner password (disamakan untuk kemudahan UI)
+	// Set user password dan owner password
 	conf.UserPW = password
 	conf.OwnerPW = password
 
-	// pdfcpu API untuk enkripsi
 	return api.EncryptFile(inputPath, outputPath, conf)
 }
 
@@ -44,19 +43,18 @@ func (s *pdfService) Decrypt(inputPath, outputPath, password string) error {
 	conf.UserPW = password
 	conf.OwnerPW = password
 
-	// pdfcpu API untuk dekripsi (menghapus password selamanya)
 	return api.DecryptFile(inputPath, outputPath, conf)
 }
 
 func (s *pdfService) Extract(inputPath, outputPath, pages string) error {
 	conf := model.NewDefaultConfiguration()
-	// TrimFile akan membuat PDF baru HANYA berisi halaman yang dipilih
+	// TrimFile
 	return api.TrimFile(inputPath, outputPath, []string{pages}, conf)
 }
 
 func (s *pdfService) Remove(inputPath, outputPath, pages string) error {
 	conf := model.NewDefaultConfiguration()
-	// RemovePagesFile akan menghapus halaman yang dipilih dan menyimpan sisanya
+	// RemovePagesFile
 	return api.RemovePagesFile(inputPath, outputPath, []string{pages}, conf)
 }
 
@@ -66,13 +64,13 @@ func (s *pdfService) Rotate(inputPath, outputPath, pages string, rotation int) e
 	if pages != "" {
 		pageSelection = []string{pages}
 	}
-	// RotateFile memutar halaman terpilih. Jika pages kosong, putar semua halaman.
+	// RotateFile
 	return api.RotateFile(inputPath, outputPath, rotation, pageSelection, conf)
 }
 
 func (s *pdfService) Compress(inputPath, outputPath string) error {
 	conf := model.NewDefaultConfiguration()
-	// OptimizeFile mengompresi struktur internal PDF dan menghapus redundansi
+	// OptimizeFile
 	return api.OptimizeFile(inputPath, outputPath, conf)
 }
 
@@ -80,13 +78,11 @@ func (s *pdfService) AddWatermark(inputPath, outputPath, text string) error {
 	conf := model.NewDefaultConfiguration()
 	
 	// Konfigurasi: Font Helvetica, ukuran 48, abu-abu, rotasi diagonal 45 derajat, opacity 50%
-	// Angka 0 di akhir adalah unit 'points' bawaan pdfcpu
 	wm, err := api.TextWatermark(text, "font:Helvetica, points:48, color:0.5 0.5 0.5, rot:45, op:0.5", true, false, 0)
 	if err != nil {
 		return err
 	}
 	
-	// nil pada parameter ke-3 berarti diterapkan ke seluruh halaman
 	return api.AddWatermarksFile(inputPath, outputPath, nil, wm, conf)
 }
 

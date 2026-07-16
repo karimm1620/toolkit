@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"toolkitz/backend/internal/core/services"
+
 	"github.com/spf13/cobra"
-	"toolkit/backend/internal/core/services"
 )
 
 func AddConvertCommands(rootCmd *cobra.Command) {
@@ -61,7 +62,6 @@ func AddConvertCommands(rootCmd *cobra.Command) {
 		},
 	}
 
-	// Daftarkan command ke root
 	rootCmd.AddCommand(wordToPdfCmd)
 	rootCmd.AddCommand(pdfToWordCmd)
 }

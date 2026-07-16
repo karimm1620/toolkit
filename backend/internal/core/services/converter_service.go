@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"toolkit/backend/internal/core/ports"
+	"toolkitz/backend/internal/core/ports"
 )
 
 type converterService struct{}
@@ -15,7 +15,7 @@ func NewConverterService() ports.ConverterService {
 }
 
 func (s *converterService) WordToPDF(inputPath, outputDir string) (string, error) {
-	// Perintah eksekusi: soffice --headless --convert-to pdf --outdir [dir] [file]
+	// eksekusi: soffice --headless --convert-to pdf --outdir [dir] [file]
 	cmd := exec.Command("soffice", "--headless", "--convert-to", "pdf", "--outdir", outputDir, inputPath)
 	
 	if err := cmd.Run(); err != nil {

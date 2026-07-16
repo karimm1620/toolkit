@@ -5,9 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	
-	"toolkit/backend/internal/adapters/rest"
-	"toolkit/backend/internal/core/services"
+
+	"toolkitz/backend/internal/adapters/rest"
+	"toolkitz/backend/internal/core/services"
 )
 
 func main() {

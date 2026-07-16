@@ -4,8 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"toolkitz/backend/internal/core/ports"
+
 	"github.com/gofiber/fiber/v2"
-	"toolkit/backend/internal/core/ports"
 )
 
 type ConvertHandler struct {
@@ -27,7 +28,7 @@ func (h *ConvertHandler) handleConversion(c *fiber.Ctx, expectedExt, targetExt s
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat folder sementara"})
 	}
-	defer os.RemoveAll(tempDir) // Hapus folder dan isinya setelah selesai
+	defer os.RemoveAll(tempDir)
 
 	inputPath := filepath.Join(tempDir, "input"+expectedExt)
 	if err := c.SaveFile(fileHeader, inputPath); err != nil {
@@ -40,7 +41,7 @@ func (h *ConvertHandler) handleConversion(c *fiber.Ctx, expectedExt, targetExt s
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Rename file output untuk diunduh user
+	// Rename file output
 	finalName := fileHeader.Filename[:len(fileHeader.Filename)-len(filepath.Ext(fileHeader.Filename))] + targetExt
 	c.Set("Content-Disposition", `attachment; filename="`+finalName+`"`)
 	

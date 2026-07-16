@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"toolkitz/backend/internal/core/ports"
+	"toolkitz/backend/internal/utils"
+
 	"github.com/gofiber/fiber/v2"
-	"toolkit/backend/internal/core/ports"
-	"toolkit/backend/internal/utils"
 )
 
 type autoCleanFile struct {
@@ -50,7 +51,7 @@ func (h *PDFHandler) Merge(c *fiber.Ctx) error {
 		}
 	}
 
-	// Otomatis hapus file input sementara setelah selesai
+	// delete file input sementara setelah selesai
 	defer func() {
 		for _, path := range inputPaths {
 			os.Remove(path)
@@ -229,7 +230,7 @@ func (h *PDFHandler) Watermark(c *fiber.Ctx) error {
 	}
 
 	action := c.FormValue("action") // "watermark" atau "pagenumbers"
-	text := c.FormValue("text")     // Hanya dipakai untuk watermark
+	text := c.FormValue("text")
 
 	tempIn := filepath.Join(os.TempDir(), "in_"+fileHeader.Filename)
 	if err := c.SaveFile(fileHeader, tempIn); err != nil {

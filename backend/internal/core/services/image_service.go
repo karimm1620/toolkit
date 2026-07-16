@@ -9,10 +9,11 @@ import (
 	"io"
 	"strings"
 
+	"toolkitz/backend/internal/core/ports"
+
 	"github.com/disintegration/imaging"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
-	"toolkit/backend/internal/core/ports"
 )
 
 type imageService struct{}
@@ -64,7 +65,7 @@ func (s *imageService) ProcessImage(input io.Reader, output io.Writer, opts port
 
 	switch format {
 	case "png":
-		return png.Encode(output, img) // PNG lossless, tidak pakai parameter quality
+		return png.Encode(output, img) // PNG lossless
 	case "webp":
 		options, _ := encoder.NewLossyEncoderOptions(encoder.PresetDefault, float32(quality))
 		return webp.Encode(output, img, options)
