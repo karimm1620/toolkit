@@ -54,6 +54,9 @@ func main() {
 	// Endpoint PDF Kompres
 	api.Post("/pdf/compress", pdfHandler.Compress)
 
+	// Endpoint Watermark
+	api.Post("/pdf/watermark", pdfHandler.Watermark)
+
 	log.Println("Server berjalan di http://localhost:3000")
 	log.Fatal(app.Listen(":3000"))
 }

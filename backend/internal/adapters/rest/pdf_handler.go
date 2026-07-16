@@ -220,3 +220,45 @@ func (h *PDFHandler) Compress(c *fiber.Ctx) error {
 	c.Set("Content-Disposition", `attachment; filename="compressed_`+fileHeader.Filename+`"`)
 	return c.SendStream(&autoCleanFile{outFile})
 }
+
+// Watermark
+func (h *PDFHandler) Watermark(c *fiber.Ctx) error {
+	fileHeader, err := c.FormFile("pdf")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "File PDF dibutuhkan"})
+	}
+
+	action := c.FormValue("action") // "watermark" atau "pagenumbers"
+	text := c.FormValue("text")     // Hanya dipakai untuk watermark
+
+	tempIn := filepath.Join(os.TempDir(), "in_"+fileHeader.Filename)
+	if err := c.SaveFile(fileHeader, tempIn); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal menyimpan file"})
+	}
+	defer os.Remove(tempIn)
+
+	tempOut := filepath.Join(os.TempDir(), "out_"+fileHeader.Filename)
+	defer os.Remove(tempOut)
+
+	var procErr error
+	if action == "pagenumbers" {
+		procErr = h.svc.AddPageNumbers(tempIn, tempOut)
+	} else {
+		if text == "" {
+			return c.Status(400).JSON(fiber.Map{"error": "Teks watermark wajib diisi"})
+		}
+		procErr = h.svc.AddWatermark(tempIn, tempOut, text)
+	}
+
+	if procErr != nil {
+		return c.Status(500).JSON(fiber.Map{"error": procErr.Error()})
+	}
+
+	outFile, err := os.Open(tempOut)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membaca output"})
+	}
+
+	c.Set("Content-Disposition", `attachment; filename="stamped_`+fileHeader.Filename+`"`)
+	return c.SendStream(&autoCleanFile{outFile})
+}

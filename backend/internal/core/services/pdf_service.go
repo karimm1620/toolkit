@@ -75,3 +75,29 @@ func (s *pdfService) Compress(inputPath, outputPath string) error {
 	// OptimizeFile mengompresi struktur internal PDF dan menghapus redundansi
 	return api.OptimizeFile(inputPath, outputPath, conf)
 }
+
+func (s *pdfService) AddWatermark(inputPath, outputPath, text string) error {
+	conf := model.NewDefaultConfiguration()
+	
+	// Konfigurasi: Font Helvetica, ukuran 48, abu-abu, rotasi diagonal 45 derajat, opacity 50%
+	// Angka 0 di akhir adalah unit 'points' bawaan pdfcpu
+	wm, err := api.TextWatermark(text, "font:Helvetica, points:48, color:0.5 0.5 0.5, rot:45, op:0.5", true, false, 0)
+	if err != nil {
+		return err
+	}
+	
+	// nil pada parameter ke-3 berarti diterapkan ke seluruh halaman
+	return api.AddWatermarksFile(inputPath, outputPath, nil, wm, conf)
+}
+
+func (s *pdfService) AddPageNumbers(inputPath, outputPath string) error {
+	conf := model.NewDefaultConfiguration()
+	
+	// Konfigurasi: Teks "Page X of Y", posisi Bottom-Center (bc), rotasi 0, solid (op:1)
+	wm, err := api.TextWatermark("Page %p of %P", "font:Helvetica, points:12, pos:bc, rot:0, op:1", true, false, 0)
+	if err != nil {
+		return err
+	}
+	
+	return api.AddWatermarksFile(inputPath, outputPath, nil, wm, conf)
+}

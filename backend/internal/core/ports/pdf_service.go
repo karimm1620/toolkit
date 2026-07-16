@@ -8,7 +8,7 @@ type PDFService interface {
 	Extract(inputPath, outputPath, pages string) error
 	Remove(inputPath, outputPath, pages string) error
 	Rotate(inputPath, outputPath, pages string, rotation int) error
-	
-	// Fitur Baru: Kompresi
 	Compress(inputPath, outputPath string) error
+	AddWatermark(inputPath, outputPath, text string) error
+	AddPageNumbers(inputPath, outputPath string) error
 }

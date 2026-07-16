@@ -126,3 +126,21 @@ export const compressPdf = async (file: File): Promise<Blob> => {
   if (!response.ok) throw new Error('Gagal mengompresi PDF');
   return await response.blob();
 };
+
+export const addPdfWatermark = async (file: File, action: 'watermark' | 'pagenumbers', text?: string): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append('pdf', file);
+  formData.append('action', action);
+  if (text) formData.append('text', text);
+
+  const response = await fetch(`${API_URL}/pdf/watermark`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || 'Gagal memproses dokumen');
+  }
+  return await response.blob();
+};

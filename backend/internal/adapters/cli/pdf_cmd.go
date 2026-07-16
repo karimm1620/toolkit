@@ -175,6 +175,43 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 	}
 
 	// ==========================================
+	// 5. WATERMARK
+	// ==========================================
+	var watermarkText string
+
+	var watermarkCmd = &cobra.Command{
+		Use:   "watermark [input.pdf] [output.pdf]",
+		Short: "Tambahkan teks watermark ke seluruh halaman PDF",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if watermarkText == "" {
+				return fmt.Errorf("flag --text wajib diisi")
+			}
+			fmt.Println("⏳ Menambahkan watermark...")
+			if err := pdfSvc.AddWatermark(args[0], args[1], watermarkText); err != nil {
+				return err
+			}
+			fmt.Println("Watermark berhasil ditambahkan!")
+			return nil
+		},
+	}
+	watermarkCmd.Flags().StringVarP(&watermarkText, "text", "t", "", "Teks watermark")
+
+	var pageNumCmd = &cobra.Command{
+		Use:   "pagenumber [input.pdf] [output.pdf]",
+		Short: "Tambahkan nomor halaman (Page X of Y) di bawah tengah dokumen",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println("⏳ Menambahkan nomor halaman...")
+			if err := pdfSvc.AddPageNumbers(args[0], args[1]); err != nil {
+				return err
+			}
+			fmt.Println("Nomor halaman berhasil ditambahkan!")
+			return nil
+		},
+	}
+
+	// ==========================================
 	// DAFTARKAN SEMUA KE ROOT COMMAND
 	// ==========================================
 	
@@ -187,5 +224,7 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		removeCmd, 
 		rotateCmd, 
 		compressCmd,
+		watermarkCmd,
+		pageNumCmd,
 	)
 }

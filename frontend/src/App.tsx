@@ -6,6 +6,7 @@ import PdfPages from "./components/PdfPages";
 import PdfCompressor from "./components/PdfCompressor";
 import DocConverter from "./components/DocConverter";
 import ImageResizer from "./components/ImageResizer";
+import PdfWatermark from "./components/PdfWatermark";
 
 type TabType =
   | "pdf-merge"
@@ -14,7 +15,8 @@ type TabType =
   | "pdf-security"
   | "pdf-compress"
   | "doc-convert"
-  | "image-resize";
+  | "image-resize"
+  | "pdf-watermark";
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>("pdf-merge");
@@ -70,6 +72,12 @@ function App() {
               >
                 PDF Compressor
               </button>
+              <button
+                onClick={() => setActiveTab("pdf-watermark")}
+                className={getTabClass("pdf-watermark")}
+              >
+                PDF Watermark
+              </button>
               <div className="w-px bg-gray-300 mx-2 hidden md:block"></div>{" "}
               {/* Divider visual */}
               <button
@@ -96,6 +104,7 @@ function App() {
         {activeTab === "pdf-pages" && <PdfPages />}
         {activeTab === "pdf-security" && <PdfSecurity />}
         {activeTab === "pdf-compress" && <PdfCompressor />}
+        {activeTab === "pdf-watermark" && <PdfWatermark />}
         {activeTab === "doc-convert" && <DocConverter />}
         {activeTab === "image-resize" && <ImageResizer />}
       </main>
