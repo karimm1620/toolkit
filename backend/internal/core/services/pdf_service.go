@@ -47,3 +47,25 @@ func (s *pdfService) Decrypt(inputPath, outputPath, password string) error {
 	// pdfcpu API untuk dekripsi (menghapus password selamanya)
 	return api.DecryptFile(inputPath, outputPath, conf)
 }
+
+func (s *pdfService) Extract(inputPath, outputPath, pages string) error {
+	conf := model.NewDefaultConfiguration()
+	// TrimFile akan membuat PDF baru HANYA berisi halaman yang dipilih
+	return api.TrimFile(inputPath, outputPath, []string{pages}, conf)
+}
+
+func (s *pdfService) Remove(inputPath, outputPath, pages string) error {
+	conf := model.NewDefaultConfiguration()
+	// RemovePagesFile akan menghapus halaman yang dipilih dan menyimpan sisanya
+	return api.RemovePagesFile(inputPath, outputPath, []string{pages}, conf)
+}
+
+func (s *pdfService) Rotate(inputPath, outputPath, pages string, rotation int) error {
+	conf := model.NewDefaultConfiguration()
+	var pageSelection []string
+	if pages != "" {
+		pageSelection = []string{pages}
+	}
+	// RotateFile memutar halaman terpilih. Jika pages kosong, putar semua halaman.
+	return api.RotateFile(inputPath, outputPath, rotation, pageSelection, conf)
+}

@@ -90,3 +90,24 @@ export const securePdf = async (file: File, password: string, action: 'encrypt' 
   }
   return await response.blob();
 };
+
+export const manipulatePdfPages = async (file: File, action: 'extract' | 'remove' | 'rotate', pages: string, rotation: number = 90): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append('pdf', file);
+  formData.append('action', action);
+  formData.append('pages', pages);
+  if (action === 'rotate') {
+    formData.append('rotation', rotation.toString());
+  }
+
+  const response = await fetch(`${API_URL}/pdf/pages`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || `Gagal melakukan ${action} pada halaman`);
+  }
+  return await response.blob();
+};

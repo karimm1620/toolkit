@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"toolkit/backend/internal/core/ports"
@@ -141,4 +142,54 @@ func (h *PDFHandler) Encrypt(c *fiber.Ctx) error {
 
 func (h *PDFHandler) Decrypt(c *fiber.Ctx) error {
 	return h.handleSecurity(c, h.svc.Decrypt)
+}
+
+// Manipulasi page
+
+func (h *PDFHandler) ManipulatePages(c *fiber.Ctx) error {
+	fileHeader, err := c.FormFile("pdf")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "File PDF dibutuhkan"})
+	}
+
+	action := c.FormValue("action") // "extract", "remove", atau "rotate"
+	pages := c.FormValue("pages")   // contoh: "1-3, 5"
+	
+	if pages == "" && action != "rotate" {
+		return c.Status(400).JSON(fiber.Map{"error": "Pilihan halaman tidak boleh kosong"})
+	}
+
+	tempIn := filepath.Join(os.TempDir(), "in_"+fileHeader.Filename)
+	if err := c.SaveFile(fileHeader, tempIn); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal menyimpan file"})
+	}
+	defer os.Remove(tempIn)
+
+	tempOut := filepath.Join(os.TempDir(), "out_"+fileHeader.Filename)
+	defer os.Remove(tempOut)
+
+	var procErr error
+	switch action {
+	case "extract":
+		procErr = h.svc.Extract(tempIn, tempOut, pages)
+	case "remove":
+		procErr = h.svc.Remove(tempIn, tempOut, pages)
+	case "rotate":
+		rot, _ := strconv.Atoi(c.FormValue("rotation", "90"))
+		procErr = h.svc.Rotate(tempIn, tempOut, pages, rot)
+	default:
+		return c.Status(400).JSON(fiber.Map{"error": "Aksi tidak valid"})
+	}
+
+	if procErr != nil {
+		return c.Status(500).JSON(fiber.Map{"error": procErr.Error()})
+	}
+
+	outFile, err := os.Open(tempOut)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membaca file output"})
+	}
+
+	c.Set("Content-Disposition", `attachment; filename="pages_`+fileHeader.Filename+`"`)
+	return c.SendStream(&autoCleanFile{outFile})
 }

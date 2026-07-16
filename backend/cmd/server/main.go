@@ -44,9 +44,12 @@ func main() {
 	api.Post("/convert/word-to-pdf", convHandler.WordToPDF)
 	api.Post("/convert/pdf-to-word", convHandler.PDFToWord)
 
-	// Endpoint Encrypt dokumen
+	// Endpoint Encrypt Dokumen
 	api.Post("/pdf/encrypt", pdfHandler.Encrypt)
 	api.Post("/pdf/decrypt", pdfHandler.Decrypt)
+
+	// Endpoint Manipulasi Page
+	api.Post("/pdf/pages", pdfHandler.ManipulatePages)
 
 	log.Println("Server berjalan di http://localhost:3000")
 	log.Fatal(app.Listen(":3000"))
