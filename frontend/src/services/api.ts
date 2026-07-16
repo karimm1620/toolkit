@@ -1,5 +1,16 @@
 const API_URL = 'http://localhost:3000/api';
 
+export interface ProcessImageOptions {
+  width: number;
+  height: number;
+  format: string;
+  cropWidth: number;
+  cropHeight: number;
+  rotate: number;
+  flipH: boolean;
+  flipV: boolean;
+}
+
 export const mergePdfs = async (files: File[]): Promise<Blob> => {
   const formData = new FormData();
   files.forEach(file => formData.append('pdfs', file));
@@ -26,11 +37,17 @@ export const splitPdf = async (file: File): Promise<Blob> => {
   return await response.blob();
 };
 
-export const resizeImage = async (file: File, width: number, format: string): Promise<Blob> => {
+export const processImage = async (file: File, opts: ProcessImageOptions): Promise<Blob> => {
   const formData = new FormData();
   formData.append('image', file);
-  formData.append('width', width.toString());
-  formData.append('format', format);
+  formData.append('format', opts.format);
+  if (opts.width > 0) formData.append('width', opts.width.toString());
+  if (opts.height > 0) formData.append('height', opts.height.toString());
+  if (opts.cropWidth > 0) formData.append('crop_width', opts.cropWidth.toString());
+  if (opts.cropHeight > 0) formData.append('crop_height', opts.cropHeight.toString());
+  if (opts.rotate !== 0) formData.append('rotate', opts.rotate.toString());
+  if (opts.flipH) formData.append('flip_h', 'true');
+  if (opts.flipV) formData.append('flip_v', 'true');
 
   const response = await fetch(`${API_URL}/image/resize`, {
     method: 'POST',

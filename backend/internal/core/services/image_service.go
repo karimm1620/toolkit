@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -23,10 +24,15 @@ func NewImageService() ports.ImageService {
 func (s *imageService) ProcessImage(input io.Reader, output io.Writer, opts ports.ImageOptions) error {
 	img, _, err := image.Decode(input)
 	if err != nil {
-		return fmt.Errorf("failed to decode image: %w", err)
+		return fmt.Errorf("gagal membaca gambar: %w", err)
 	}
 
-	// 1. Resize
+	// 1. Crop Center (Potong dari titik tengah)
+	if opts.CropWidth > 0 && opts.CropHeight > 0 {
+		img = imaging.CropCenter(img, opts.CropWidth, opts.CropHeight)
+	}
+
+	// 2. Resize
 	if opts.Percentage > 0 {
 		bounds := img.Bounds()
 		newWidth := int(float64(bounds.Dx()) * (float64(opts.Percentage) / 100.0))
@@ -35,7 +41,21 @@ func (s *imageService) ProcessImage(input io.Reader, output io.Writer, opts port
 		img = imaging.Resize(img, opts.Width, opts.Height, imaging.Lanczos)
 	}
 
-	// 2. Encode to format
+	// 3. Flip (Cermin)
+	if opts.FlipH {
+		img = imaging.FlipH(img)
+	}
+	if opts.FlipV {
+		img = imaging.FlipV(img)
+	}
+
+	// 4. Rotate (Putar)
+	if opts.Rotate != 0 {
+		// Menggunakan warna background transparan
+		img = imaging.Rotate(img, opts.Rotate, color.Transparent)
+	}
+
+	// 5. Encode ke Format Pilihan
 	format := strings.ToLower(opts.Format)
 	switch format {
 	case "png":
