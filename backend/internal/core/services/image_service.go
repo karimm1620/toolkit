@@ -55,15 +55,20 @@ func (s *imageService) ProcessImage(input io.Reader, output io.Writer, opts port
 		img = imaging.Rotate(img, opts.Rotate, color.Transparent)
 	}
 
-	// 5. Encode ke Format Pilihan
+	// 5. Encode ke Format Pilihan dengan Kompresi (Quality)
 	format := strings.ToLower(opts.Format)
+	quality := opts.Quality
+	if quality <= 0 || quality > 100 {
+		quality = 85 // Fallback default
+	}
+
 	switch format {
 	case "png":
-		return png.Encode(output, img)
+		return png.Encode(output, img) // PNG lossless, tidak pakai parameter quality
 	case "webp":
-		options, _ := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+		options, _ := encoder.NewLossyEncoderOptions(encoder.PresetDefault, float32(quality))
 		return webp.Encode(output, img, options)
 	default:
-		return jpeg.Encode(output, img, &jpeg.Options{Quality: 85})
+		return jpeg.Encode(output, img, &jpeg.Options{Quality: quality})
 	}
 }

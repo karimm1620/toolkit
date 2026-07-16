@@ -4,26 +4,30 @@ import (
 	"fmt"
 	"os"
 
-	"toolkit/backend/internal/core/services"
-
 	"github.com/spf13/cobra"
+	"toolkit/backend/internal/core/services"
 )
 
 func AddPDFCommands(rootCmd *cobra.Command) {
 	pdfSvc := services.NewPDFService()
 
+	// ==========================================
+	// 1. COMMAND: PENGGABUNGAN & PEMISAHAN
+	// ==========================================
+
 	var mergeCmd = &cobra.Command{
 		Use:   "merge [output.pdf] [input1.pdf] [input2.pdf]...",
-		Short: "Merge multiple PDFs into a single file",
+		Short: "Merge beberapa file PDF menjadi satu file",
 		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			outputPath := args[0]
 			inputPaths := args[1:]
-
+			
+			fmt.Println("⏳ Sedang menggabungkan PDF...")
 			if err := pdfSvc.Merge(inputPaths, outputPath); err != nil {
 				return err
 			}
-
+			
 			fmt.Printf("Berhasil menggabungkan %d file ke %s\n", len(inputPaths), outputPath)
 			return nil
 		},
@@ -31,27 +35,29 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 
 	var splitCmd = &cobra.Command{
 		Use:   "split [input.pdf] [output_dir]",
-		Short: "Split a PDF into single pages",
+		Short: "Pisahkan PDF menjadi halaman tunggal",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inputPath := args[0]
 			outDir := args[1]
-
+			
 			if err := os.MkdirAll(outDir, 0755); err != nil {
-				return err
+				return fmt.Errorf("gagal membuat direktori output: %w", err)
 			}
-
+			
+			fmt.Println("⏳ Sedang memisahkan PDF...")
 			if err := pdfSvc.Split(inputPath, outDir, 1); err != nil {
 				return err
 			}
-
+			
 			fmt.Printf("Berhasil memisahkan PDF %s ke folder %s\n", inputPath, outDir)
 			return nil
 		},
 	}
 
-	rootCmd.AddCommand(mergeCmd)
-	rootCmd.AddCommand(splitCmd)
+	// ==========================================
+	// 2. COMMAND: KEAMANAN (PASSWORD)
+	// ==========================================
 
 	var password string
 
@@ -61,8 +67,9 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if password == "" {
-				return fmt.Errorf("flag --password wajib diisi")
+				return fmt.Errorf("flag --password wajib diisi (contoh: -p rahasia123)")
 			}
+			fmt.Println("⏳ Sedang mengunci PDF...")
 			if err := pdfSvc.Encrypt(args[0], args[1], password); err != nil {
 				return err
 			}
@@ -78,8 +85,9 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if password == "" {
-				return fmt.Errorf("flag --password wajib diisi")
+				return fmt.Errorf("flag --password wajib diisi (contoh: -p rahasia123)")
 			}
+			fmt.Println("⏳ Sedang membuka kunci PDF...")
 			if err := pdfSvc.Decrypt(args[0], args[1], password); err != nil {
 				return err
 			}
@@ -89,14 +97,22 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 	}
 	decryptCmd.Flags().StringVarP(&password, "password", "p", "", "Password lama PDF")
 
+	// ==========================================
+	// 3. COMMAND: MANIPULASI HALAMAN
+	// ==========================================
+
 	var pages string
 	var rotation int
 
 	var extractCmd = &cobra.Command{
 		Use:   "extract [input.pdf] [output.pdf]",
-		Short: "Ekstrak halaman tertentu dari PDF (contoh flag: --pages 1-3,5)",
+		Short: "Ekstrak halaman tertentu dari PDF",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if pages == "" {
+				return fmt.Errorf("flag --pages wajib diisi (contoh: -p 1-3,5)")
+			}
+			fmt.Println("⏳ Sedang mengekstrak halaman...")
 			if err := pdfSvc.Extract(args[0], args[1], pages); err != nil {
 				return err
 			}
@@ -111,6 +127,10 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Short: "Hapus halaman tertentu dari PDF",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if pages == "" {
+				return fmt.Errorf("flag --pages wajib diisi (contoh: -p 1-3,5)")
+			}
+			fmt.Println("⏳ Sedang menghapus halaman...")
 			if err := pdfSvc.Remove(args[0], args[1], pages); err != nil {
 				return err
 			}
@@ -125,6 +145,7 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Short: "Putar halaman PDF (90, 180, 270)",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println("⏳ Sedang memutar halaman...")
 			if err := pdfSvc.Rotate(args[0], args[1], pages, rotation); err != nil {
 				return err
 			}
@@ -132,11 +153,39 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			return nil
 		},
 	}
-	rotateCmd.Flags().StringVarP(&pages, "pages", "p", "", "Halaman yang diputar (kosongkan untuk semua)")
+	rotateCmd.Flags().StringVarP(&pages, "pages", "p", "", "Halaman yang diputar (kosongkan untuk memutar semua)")
 	rotateCmd.Flags().IntVarP(&rotation, "rotation", "r", 90, "Derajat putaran (90, 180, 270)")
 
-	rootCmd.AddCommand(extractCmd, removeCmd, rotateCmd)
+	// ==========================================
+	// 4. COMMAND: OPTIMALISASI / KOMPRESI
+	// ==========================================
 
-	rootCmd.AddCommand(encryptCmd)
-	rootCmd.AddCommand(decryptCmd)
+	var compressCmd = &cobra.Command{
+		Use:   "compress [input.pdf] [output.pdf]",
+		Short: "Mengompresi dan mengoptimalkan ukuran file PDF",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println("⏳ Mengompresi PDF...")
+			if err := pdfSvc.Compress(args[0], args[1]); err != nil {
+				return err
+			}
+			fmt.Println("PDF berhasil dikompresi!")
+			return nil
+		},
+	}
+
+	// ==========================================
+	// DAFTARKAN SEMUA KE ROOT COMMAND
+	// ==========================================
+	
+	rootCmd.AddCommand(
+		mergeCmd, 
+		splitCmd, 
+		encryptCmd, 
+		decryptCmd, 
+		extractCmd, 
+		removeCmd, 
+		rotateCmd, 
+		compressCmd,
+	)
 }

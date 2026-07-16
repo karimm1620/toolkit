@@ -51,6 +51,9 @@ func main() {
 	// Endpoint Manipulasi Page
 	api.Post("/pdf/pages", pdfHandler.ManipulatePages)
 
+	// Endpoint PDF Kompres
+	api.Post("/pdf/compress", pdfHandler.Compress)
+
 	log.Println("Server berjalan di http://localhost:3000")
 	log.Fatal(app.Listen(":3000"))
 }

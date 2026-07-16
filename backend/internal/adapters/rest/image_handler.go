@@ -29,6 +29,7 @@ func (h *ImageHandler) Resize(c *fiber.Ctx) error {
 	cropW, _ := strconv.Atoi(c.FormValue("crop_width", "0"))
 	cropH, _ := strconv.Atoi(c.FormValue("crop_height", "0"))
 	rotate, _ := strconv.ParseFloat(c.FormValue("rotate", "0"), 64)
+	quality, _ := strconv.Atoi(c.FormValue("quality", "85"))
 	format := c.FormValue("format", "jpeg")
 	flipH := c.FormValue("flip_h") == "true"
 	flipV := c.FormValue("flip_v") == "true"
@@ -50,6 +51,7 @@ func (h *ImageHandler) Resize(c *fiber.Ctx) error {
 		Width: width, Height: height, Format: format,
 		CropWidth: cropW, CropHeight: cropH,
 		Rotate: rotate, FlipH: flipH, FlipV: flipV,
+		Quality: quality,
 	}
 
 	if err := h.svc.ProcessImage(src, tempOut, opts); err != nil {

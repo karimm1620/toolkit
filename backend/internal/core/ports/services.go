@@ -6,14 +6,14 @@ type ImageOptions struct {
 	Width      int
 	Height     int
 	Percentage int
-	Format     string // "jpeg", "png", "webp"
-	
-	// Parameter Baru
+	Format     string 
 	CropWidth  int
 	CropHeight int
-	Rotate     float64 // Derajat putaran (contoh: 90, 180, 270)
-	FlipH      bool    // Horizontal Flip
-	FlipV      bool    // Vertical Flip
+	Rotate     float64
+	FlipH      bool
+	FlipV      bool
+	// Tambahan baru:
+	Quality    int // Nilai 1-100 (Default 85)
 }
 
 type ImageService interface {

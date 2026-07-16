@@ -69,3 +69,9 @@ func (s *pdfService) Rotate(inputPath, outputPath, pages string, rotation int) e
 	// RotateFile memutar halaman terpilih. Jika pages kosong, putar semua halaman.
 	return api.RotateFile(inputPath, outputPath, rotation, pageSelection, conf)
 }
+
+func (s *pdfService) Compress(inputPath, outputPath string) error {
+	conf := model.NewDefaultConfiguration()
+	// OptimizeFile mengompresi struktur internal PDF dan menghapus redundansi
+	return api.OptimizeFile(inputPath, outputPath, conf)
+}

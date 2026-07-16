@@ -9,6 +9,7 @@ export interface ProcessImageOptions {
   rotate: number;
   flipH: boolean;
   flipV: boolean;
+  quality: number;
 }
 
 export const mergePdfs = async (files: File[]): Promise<Blob> => {
@@ -41,6 +42,7 @@ export const processImage = async (file: File, opts: ProcessImageOptions): Promi
   const formData = new FormData();
   formData.append('image', file);
   formData.append('format', opts.format);
+  formData.append('quality', opts.quality.toString());
   if (opts.width > 0) formData.append('width', opts.width.toString());
   if (opts.height > 0) formData.append('height', opts.height.toString());
   if (opts.cropWidth > 0) formData.append('crop_width', opts.cropWidth.toString());
@@ -109,5 +111,18 @@ export const manipulatePdfPages = async (file: File, action: 'extract' | 'remove
     const err = await response.json().catch(() => null);
     throw new Error(err?.error || `Gagal melakukan ${action} pada halaman`);
   }
+  return await response.blob();
+};
+
+export const compressPdf = async (file: File): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append('pdf', file);
+
+  const response = await fetch(`${API_URL}/pdf/compress`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) throw new Error('Gagal mengompresi PDF');
   return await response.blob();
 };
