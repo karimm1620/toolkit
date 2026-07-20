@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   backend:
@@ -14,6 +13,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - VITE_API_URL=YOUR_LAPTOP_IP/api # -> change YOUR_LAPTOP_API to 192.168.xxxxx
     container_name: toolkitz-frontend
     ports:
       - "80:80" # Akses web via http://localhost
