@@ -24,12 +24,12 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			outputPath := args[0]
 			inputPaths := args[1:]
 			
-			fmt.Println("⏳ Sedang menggabungkan PDF...")
+			fmt.Println("⌛︎ Sedang menggabungkan PDF...")
 			if err := pdfSvc.Merge(inputPaths, outputPath); err != nil {
 				return err
 			}
 			
-			fmt.Printf("Berhasil menggabungkan %d file ke %s\n", len(inputPaths), outputPath)
+			fmt.Printf("✔ Berhasil menggabungkan %d file ke %s\n", len(inputPaths), outputPath)
 			return nil
 		},
 	}
@@ -46,12 +46,12 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 				return fmt.Errorf("gagal membuat direktori output: %w", err)
 			}
 			
-			fmt.Println("⏳ Sedang memisahkan PDF...")
+			fmt.Println("⌛︎ Sedang memisahkan PDF...")
 			if err := pdfSvc.Split(inputPath, outDir, 1); err != nil {
 				return err
 			}
 			
-			fmt.Printf("Berhasil memisahkan PDF %s ke folder %s\n", inputPath, outDir)
+			fmt.Printf("✔ Berhasil memisahkan PDF %s ke folder %s\n", inputPath, outDir)
 			return nil
 		},
 	}
@@ -70,11 +70,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			if password == "" {
 				return fmt.Errorf("flag --password wajib diisi (contoh: -p rahasia123)")
 			}
-			fmt.Println("⏳ Sedang mengunci PDF...")
+			fmt.Println("⌛︎ Sedang mengunci PDF...")
 			if err := pdfSvc.Encrypt(args[0], args[1], password); err != nil {
 				return err
 			}
-			fmt.Println("PDF berhasil dikunci!")
+			fmt.Println("🔒︎ PDF berhasil dikunci!")
 			return nil
 		},
 	}
@@ -88,11 +88,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			if password == "" {
 				return fmt.Errorf("flag --password wajib diisi (contoh: -p rahasia123)")
 			}
-			fmt.Println("⏳ Sedang membuka kunci PDF...")
+			fmt.Println("⌛︎ Sedang membuka kunci PDF...")
 			if err := pdfSvc.Decrypt(args[0], args[1], password); err != nil {
 				return err
 			}
-			fmt.Println("Password PDF berhasil dihapus!")
+			fmt.Println("ꗃ Password PDF berhasil dihapus!")
 			return nil
 		},
 	}
@@ -113,11 +113,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			if pages == "" {
 				return fmt.Errorf("flag --pages wajib diisi (contoh: -p 1-3,5)")
 			}
-			fmt.Println("⏳ Sedang mengekstrak halaman...")
+			fmt.Println("⌛︎ Sedang mengekstrak halaman...")
 			if err := pdfSvc.Extract(args[0], args[1], pages); err != nil {
 				return err
 			}
-			fmt.Println("Halaman berhasil diekstrak!")
+			fmt.Println("✔ Halaman berhasil diekstrak!")
 			return nil
 		},
 	}
@@ -131,11 +131,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			if pages == "" {
 				return fmt.Errorf("flag --pages wajib diisi (contoh: -p 1-3,5)")
 			}
-			fmt.Println("⏳ Sedang menghapus halaman...")
+			fmt.Println("⌛︎ Sedang menghapus halaman...")
 			if err := pdfSvc.Remove(args[0], args[1], pages); err != nil {
 				return err
 			}
-			fmt.Println("Halaman berhasil dihapus!")
+			fmt.Println("✔ Halaman berhasil dihapus!")
 			return nil
 		},
 	}
@@ -146,11 +146,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Short: "Putar halaman PDF (90, 180, 270)",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("⏳ Sedang memutar halaman...")
+			fmt.Println("⌛︎ Sedang memutar halaman...")
 			if err := pdfSvc.Rotate(args[0], args[1], pages, rotation); err != nil {
 				return err
 			}
-			fmt.Println("Halaman berhasil diputar!")
+			fmt.Println("🗘 Halaman berhasil diputar!")
 			return nil
 		},
 	}
@@ -166,11 +166,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Short: "Mengompresi dan mengoptimalkan ukuran file PDF",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("⏳ Mengompresi PDF...")
+			fmt.Println("⌛︎ Mengompresi PDF...")
 			if err := pdfSvc.Compress(args[0], args[1]); err != nil {
 				return err
 			}
-			fmt.Println("PDF berhasil dikompresi!")
+			fmt.Println("✔ PDF berhasil dikompresi!")
 			return nil
 		},
 	}
@@ -188,11 +188,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 			if watermarkText == "" {
 				return fmt.Errorf("flag --text wajib diisi")
 			}
-			fmt.Println("⏳ Menambahkan watermark...")
+			fmt.Println("⌛︎ Menambahkan watermark...")
 			if err := pdfSvc.AddWatermark(args[0], args[1], watermarkText); err != nil {
 				return err
 			}
-			fmt.Println("Watermark berhasil ditambahkan!")
+			fmt.Println("✔ Watermark berhasil ditambahkan!")
 			return nil
 		},
 	}
@@ -203,11 +203,11 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 		Short: "Tambahkan nomor halaman (Page X of Y) di bawah tengah dokumen",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("⏳ Menambahkan nomor halaman...")
+			fmt.Println("⌛︎ Menambahkan nomor halaman...")
 			if err := pdfSvc.AddPageNumbers(args[0], args[1]); err != nil {
 				return err
 			}
-			fmt.Println("Nomor halaman berhasil ditambahkan!")
+			fmt.Println("✔ Nomor halaman berhasil ditambahkan!")
 			return nil
 		},
 	}

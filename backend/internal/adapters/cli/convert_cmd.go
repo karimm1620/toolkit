@@ -25,14 +25,14 @@ func AddConvertCommands(rootCmd *cobra.Command) {
 				return fmt.Errorf("gagal membuat direktori output: %w", err)
 			}
 
-			fmt.Println("Sedang mengkonversi Word ke PDF... (Membutuhkan LibreOffice)")
+			fmt.Println("⌛︎ Sedang mengkonversi Word ke PDF... (Membutuhkan LibreOffice)")
 			
 			outputPath, err := convSvc.WordToPDF(inputPath, outDir)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Berhasil! File tersimpan di: %s\n", outputPath)
+			fmt.Printf("✔ Berhasil! File tersimpan di: %s\n", outputPath)
 			return nil
 		},
 	}
@@ -50,14 +50,14 @@ func AddConvertCommands(rootCmd *cobra.Command) {
 				return fmt.Errorf("gagal membuat direktori output: %w", err)
 			}
 
-			fmt.Println("Sedang mengkonversi PDF ke Word... (Membutuhkan LibreOffice)")
+			fmt.Println("⌛︎ Sedang mengkonversi PDF ke Word... (Membutuhkan LibreOffice)")
 			
 			outputPath, err := convSvc.PDFToWord(inputPath, outDir)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("Berhasil! File tersimpan di: %s\n", outputPath)
+			fmt.Printf("✔ Berhasil! File tersimpan di: %s\n", outputPath)
 			return nil
 		},
 	}

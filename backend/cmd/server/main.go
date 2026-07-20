@@ -17,7 +17,12 @@ func main() {
 	})
 
 	// Mengaktifkan CORS agar frontend React (port 5173) bisa menembak API (port 3000)
-	app.Use(cors.New())
+	// app.Use(cors.New()) -> ini diganti
+	app.Use(cors.New(cors.Config{
+	AllowOrigins: "*",
+	AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+}))
 
 	// Fitur Gambar
 	imgSvc := services.NewImageService()

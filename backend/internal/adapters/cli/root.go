@@ -79,12 +79,12 @@ func Execute() {
 				Quality: 85,
 			}
 			
-			fmt.Println("⏳ Memproses gambar...")
+			fmt.Println("⌛︎ Memproses gambar...")
 			if err := imgSvc.ProcessImage(in, out, opts); err != nil {
 				return err
 			}
 
-			fmt.Printf("Gambar berhasil diproses: %s\n", outputPath)
+			fmt.Printf("✔ Gambar berhasil diproses: %s\n", outputPath)
 			return nil
 		},
 	}
